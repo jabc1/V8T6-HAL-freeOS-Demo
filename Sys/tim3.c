@@ -5,8 +5,9 @@
 #endif
 
 TIM_HandleTypeDef htim3;
-volatile unsigned long long FreeRTOSRunTimeTicks;
+
 #ifdef free_os
+volatile unsigned long long FreeRTOSRunTimeTicks;
 extern void xPortSysTickHandler(void);
 void SysTick_Handler(void)
 {
@@ -24,19 +25,29 @@ void ConfigureTimeForRunTimeStats(void)
 	MX_TIM3_Init();
 }
 #endif
+
 void TIM3_IRQHandler(void)
 {
-	HAL_TIM_IRQHandler(&htim3);
+	//HAL_TIM_IRQHandler(&htim3);
+	/* TIM Update event */
+	if(__HAL_TIM_GET_FLAG(&htim3, TIM_FLAG_UPDATE) != RESET)
+	{
+		if(__HAL_TIM_GET_IT_SOURCE(&htim3, TIM_IT_UPDATE) !=RESET)
+		{
+			__HAL_TIM_CLEAR_IT(&htim3, TIM_IT_UPDATE);
+			//HAL_TIM_PeriodElapsedCallback(&htim3);
+			FreeRTOSRunTimeTicks++;
+		}
+	}
 }
-
 //回调函数，定时器中断服务函数调用
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if(htim->Instance == TIM3)//100us
-    {
-		FreeRTOSRunTimeTicks++;
-    }
-}
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+//{
+//    if(htim->Instance == TIM3)//100us
+//    {
+//		FreeRTOSRunTimeTicks++;
+//    }
+//}
 
 
 

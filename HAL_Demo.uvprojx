@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>.\HAL_LIB\core;.\HAL_LIB\core\Include;.\HAL_LIB\Include;.\HAL_LIB\STM32F1xx_HAL_Driver\Inc;.\HAL_LIB\STM32F1xx_HAL_Driver\Inc\Legacy;.\User;.\Sys;.\FreeRTOS\include;.\FreeRTOS\inc;.\FreeRTOS;.\Custom;.\Task</IncludePath>
+              <IncludePath>.\HAL_LIB\core;.\HAL_LIB\core\Include;.\HAL_LIB\Include;.\HAL_LIB\STM32F1xx_HAL_Driver\Inc;.\HAL_LIB\STM32F1xx_HAL_Driver\Inc\Legacy;.\User;.\Sys;.\FreeRTOS\include;.\FreeRTOS\inc;.\FreeRTOS;.\Custom;.\Task;.\App;.\NB_lib\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -378,6 +378,16 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>Stratup</GroupName>
+          <Files>
+            <File>
+              <FileName>startup_stm32f103xb.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\User\startup_stm32f103xb.s</FilePath>
+            </File>
+          </Files>
+        </Group>
         <Group>
           <GroupName>HAL_LIB</GroupName>
           <Files>
@@ -459,16 +469,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Stratup</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_stm32f103xb.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\User\startup_stm32f103xb.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Custom</GroupName>
           <Files>
             <File>
@@ -524,6 +524,56 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>NB_lib</GroupName>
+          <Files>
+            <File>
+              <FileName>Fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NB_lib\src\Fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>CRC.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NB_lib\src\CRC.C</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f1xx_hal_msp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\stm32f1xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\stm32f1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f1xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\system_stm32f1xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f1xx_hal_conf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\stm32f1xx_hal_conf.h</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f1xx_it.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\stm32f1xx_it.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Sys</GroupName>
           <Files>
             <File>
@@ -569,42 +619,49 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>User</GroupName>
+          <GroupName>App</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>485_function.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\User\main.c</FilePath>
+              <FilePath>.\App\485_function.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f1xx_hal_msp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\stm32f1xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\stm32f1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f1xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\system_stm32f1xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f1xx_hal_conf.h</FileName>
+              <FileName>485_function.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\User\stm32f1xx_hal_conf.h</FilePath>
+              <FilePath>.\App\485_function.h</FilePath>
             </File>
             <File>
-              <FileName>stm32f1xx_it.h</FileName>
+              <FileName>Command_Parse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\Command_Parse.c</FilePath>
+            </File>
+            <File>
+              <FileName>Command_Parse.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\User\stm32f1xx_it.h</FilePath>
+              <FilePath>.\App\Command_Parse.h</FilePath>
+            </File>
+            <File>
+              <FileName>user_fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\user_fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_fifo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\App\user_fifo.h</FilePath>
+            </File>
+            <File>
+              <FileName>table.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\table.c</FilePath>
+            </File>
+            <File>
+              <FileName>table.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\App\table.h</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>App</GroupName>
         </Group>
         <Group>
           <GroupName>Task</GroupName>

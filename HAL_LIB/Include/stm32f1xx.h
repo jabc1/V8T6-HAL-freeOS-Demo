@@ -160,7 +160,8 @@
 #endif
 
 #include "base.h"
-
+#include <stdlib.h>
+#include <string.h>
 
 
 

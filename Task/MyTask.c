@@ -1,7 +1,8 @@
 #include "stm32f1xx.h"
-#include <stdlib.h>
-#include <string.h>
-
+#include "usart1.h"
+#include "485_function.h"
+#include "Command_Parse.h"
+//#include "fifo.h"
 #ifdef free_os
 #include "MyTask.h"
 #include "FreeRTOS.h"  
@@ -20,10 +21,10 @@ void key_task(void *pvParameters);
 TaskHandle_t Task1Task_Handler;
 void task1_task(void *pvParameters);
 
-#define TASK2_TASK_PRIO		4
-#define TASK2_STK_SIZE 		128  
-TaskHandle_t Task2Task_Handler;
-void task2_task(void *pvParameters);
+//#define TASK2_TASK_PRIO		4
+//#define TASK2_STK_SIZE 		128  
+//TaskHandle_t Task2Task_Handler;
+//void task2_task(void *pvParameters);
 
 //开始任务任务函数
 void start_task(void *pvParameters)
@@ -44,17 +45,17 @@ void start_task(void *pvParameters)
                 (UBaseType_t    )TASK1_TASK_PRIO,        
                 (TaskHandle_t*  )&Task1Task_Handler);   
     //创建TASK2任务
-    xTaskCreate((TaskFunction_t )task2_task,     
-                (const char*    )"task2_task",   
-                (uint16_t       )TASK2_STK_SIZE,
-                (void*          )NULL,
-                (UBaseType_t    )TASK2_TASK_PRIO,
-                (TaskHandle_t*  )&Task2Task_Handler); 
+//    xTaskCreate((TaskFunction_t )task2_task,     
+//                (const char*    )"task2_task",   
+//                (uint16_t       )TASK2_STK_SIZE,
+//                (void*          )NULL,
+//                (UBaseType_t    )TASK2_TASK_PRIO,
+//                (TaskHandle_t*  )&Task2Task_Handler); 
 
     vTaskDelete(StartTask_Handler); //删除开始任务
     taskEXIT_CRITICAL();            //退出临界区
 }
-void ts()
+void test_malloc()
 {
 	typedef struct data_type{
 		int age;
@@ -82,30 +83,41 @@ void key_task(void *pvParameters)
 {
 	while(1)
 	{
-		printf("key task printf\r\n");
-		vTaskDelay(500);
+		if(Uart1.over == true)
+		{
+			Uart1.over = false;
+			Re_start_uart1_idle();
+//			USART1_Printf("Receive=%s\r\n",(u8 *)Uart1.RxBuff);
+//			Command_Parse((u8 *)Uart1.RxBuff);
+//			memset((u8 *)Uart1.RxBuff,0,sizeof(Uart1.RxBuff));
+		}
+		vTaskDelay(5);
 	}
 }
 
 //task1任务函数
 void task1_task(void *pvParameters)
 {
+	Init_FIFO();
 	while(1)
 	{
-		printf("task1\r\n");
-		vTaskDelay(1000);
+		Receive_function();
+		Transport_function();
+		vTaskDelay(10);
 	}
 }
 
 //task2任务函数
-void task2_task(void *pvParameters)
-{
-	while(1)
-	{
-		printf("task2\r\n");
-		vTaskDelay(1200);
-	}
-}
+//void task2_task(void *pvParameters)
+//{
+//	while(1)
+//	{
+//		;//printf("task2\r\n");
+//		vTaskDelay(1200);
+//	}
+//}
+
+
 #endif
 
 
