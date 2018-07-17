@@ -33,7 +33,7 @@ void SystemClock_Config(void)
 	/* 系统滴答定时器时钟源 */
 	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 	/* 系统滴答定时器中断优先级配置 */
-	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(SysTick_IRQn, 5, 0);
 }
 
 

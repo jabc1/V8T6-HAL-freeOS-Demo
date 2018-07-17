@@ -52,7 +52,7 @@
           <OutputName>HAL_Demo</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Objects\</ListingPath>
@@ -80,9 +80,9 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o AGV_c8t6.bin  ./Objects/HAL_Demo.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -273,8 +273,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8000000</StartAddress>
-                <Size>0x10000</Size>
+                <StartAddress>0x8006400</StartAddress>
+                <Size>0x9c00</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -660,6 +660,26 @@
               <FileName>table.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\App\table.h</FilePath>
+            </File>
+            <File>
+              <FileName>flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\App\flash.h</FilePath>
+            </File>
+            <File>
+              <FileName>update.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App\update.c</FilePath>
+            </File>
+            <File>
+              <FileName>update.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\App\update.h</FilePath>
             </File>
           </Files>
         </Group>

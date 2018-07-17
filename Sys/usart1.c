@@ -2,6 +2,11 @@
 #include <string.h>
 #include "fifo.h"
 #include "Command_Parse.h"
+#ifdef free_os
+#include "FreeRTOS.h"  
+#include "task.h"  
+#include "queue.h" 
+#endif
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 void MX_USART1_UART_Init(void)
@@ -157,14 +162,16 @@ void USART1_IRQHandler(void)
 	//HAL_UART_IRQHandler(&huart1);
 	user_Uart1Handler();
 }
-
+//extern QueueHandle_t Message_Queue;	//信息队列句柄
 void user_Uart1Handler()
 {
+//	BaseType_t xHigherPriorityTaskWoken;
 	u8 temp=0;
 	if((__HAL_UART_GET_FLAG(&huart1,UART_FLAG_RXNE)!=RESET))
 	{
 		temp = (uint8_t)(huart1.Instance->DR&(uint8_t)0x00FF);
 		__HAL_UART_CLEAR_FLAG(&huart1,UART_FLAG_RXNE);
+//		fifo_putc(&ReceiveFIFO,temp);
 		if(uart1RxState == UART_RX_STATE_READY)//接收到一帧中的第一个字节
 		{
 			__HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);  //打开空闲中断
@@ -184,13 +191,19 @@ void user_Uart1Handler()
 		__HAL_UART_DISABLE_IT(&huart1,UART_IT_RXNE);   //关了接收完成中断
 		fifo_puts(&ReceiveFIFO,&Uart1.RxBuff[0],Uart1.Len);
 		Uart1.over = true;
+//		if(Message_Queue!=NULL)
+//		{
+//			xQueueSendFromISR(Message_Queue,Uart1.over,&xHigherPriorityTaskWoken);//向队列中发送数据	
+//			memset(Uart1.over,0,sizeof(Uart1.over));
+//			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//		}
 	}	
 }
 void Uart1_Init()
 {
 	Uart1.Len = 0;
 	Uart1.over = 0;
-	memset((u8 *)Uart1.RxBuff,0,1024);
+	memset(Uart1.RxBuff,0,sizeof(Uart1.RxBuff));
 //    /* Enable the UART Parity Error Interrupt */
 //    __HAL_UART_ENABLE_IT(&huart1, UART_IT_PE);//使能
 //    /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */

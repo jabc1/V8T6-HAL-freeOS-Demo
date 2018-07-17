@@ -81,7 +81,7 @@ void HAL_MspInit(void)
 	HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
 	/* DebugMonitor_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
-	#if 1//freertos
+	#if 1//user freertos
 	/* PendSV_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 	/* SysTick_IRQn interrupt configuration */

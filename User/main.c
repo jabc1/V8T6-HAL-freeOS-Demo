@@ -5,6 +5,7 @@
 #include "gpio.h"
 #include "usart1.h"
 #include "tim3.h"
+#include "flash.h"
 #ifdef free_os
 /* Includes ------------------------------------------------------------------*/
 #include "FreeRTOS.h"  
@@ -19,10 +20,12 @@ void start_task(void *pvParameters);
 
 int main(void)
 {
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH,0x6400);
 	HAL_Init();
 	SystemClock_Config();
 	GPIO_init();
 	MX_USART1_UART_Init();
+	USART1_Printf("APP Start!\r\n");
 #ifdef free_os	
 	//创建开始任务
 	xTaskCreate((TaskFunction_t )start_task,            //任务函数

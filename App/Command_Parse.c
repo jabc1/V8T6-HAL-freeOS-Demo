@@ -3,7 +3,7 @@
 #include "fifo.h"
 #include "CRC.h"
 #include "table.h"
-
+#include "update.h"
 #define MAX_TRANSMIT_QUEUE_LENGTH 	1000
 #define MAX_RECEIVE_QUEUE_LENGTH  	1000
 
@@ -38,21 +38,32 @@ void Receive_function()
 		memset(Data.Buff,0,sizeof(Data.Buff));
 		if (fifo_get_frame(&ReceiveFIFO,&Data.Buff[0],&Length))
 		{
-			if(Msg(Data.Buff,Length) == false)
-				return;
-			if(true == Analysis(&Cmd_Analysis.add,&Cmd_Analysis.cmd,Cmd_Analysis.data,\
+			if(true == Analysis(&Cmd_Analysis.add,&Cmd_Analysis.cmd,&Cmd_Analysis.data[0],\
 								&Cmd_Analysis.datalen,Data.Buff,Length))
 			{
-				if(Cmd_Analysis.cmd == 0x0a)
+				if(Cmd_Analysis.cmd == 0xa3)//APP升级包信息crc,len擦除app程序
 				{
-					//USART1_Printf("Rcmd=%s\r\n",Cmd_Analysis.data);
-					unpack(0x0a,0x00,Cmd_Analysis.data,Cmd_Analysis.datalen);
-				}
-				if(Cmd_Analysis.cmd == 0x0b)
+					update_parameter(Cmd_Analysis.data,Cmd_Analysis.datalen);
+				}				
+				if(Cmd_Analysis.cmd == 0xa5)//APP升级包内容
 				{
-					//USART1_Printf("Rcmd=%s\r\n",Cmd_Analysis.cmd);	
-					unpack(0x0b,0x00,Cmd_Analysis.data,Cmd_Analysis.datalen);
-				}
+					update_function(Cmd_Analysis.data,Cmd_Analysis.datalen);
+				}				
+				
+				
+//				if(Msg(Data.Buff,Length) == false)
+//					return;				
+
+//				if(Cmd_Analysis.cmd == 0x0a)
+//				{
+//					//USART1_Printf("Rcmd=%s\r\n",Cmd_Analysis.data);
+//					unpack(0x0a,0x00,Cmd_Analysis.data,Cmd_Analysis.datalen);
+//				}
+//				if(Cmd_Analysis.cmd == 0x0b)
+//				{
+//					//USART1_Printf("Rcmd=%s\r\n",Cmd_Analysis.cmd);	
+//					unpack(0x0b,0x00,Cmd_Analysis.data,Cmd_Analysis.datalen);
+//				}
 			}			
 		}
 	}
@@ -66,14 +77,14 @@ void Transport_function()
 		if (fifo_get_frame(&TransmitFIFO,&Data.Buff[0], &Len))
         {
 			#if 1
-			DW_485_Send();        //设置为发送模式
-			for(i=0;i<Len;i++)               //循环发送数据
+			DW_485_Send();
+			for(i=0;i<Len;i++)
 			{
-				while((USART1->SR&0X40)==0);  //等待发送结束             
+				while((USART1->SR&0X40)==0);//等待发送结束             
 				USART1->DR=Data.Buff[i];
 			}    
-			while((USART1->SR&0X40)==0);     //等待发送结束    
-			DW_485_Receive();        //设置为接收模式 
+			while((USART1->SR&0X40)==0);
+			DW_485_Receive();
 			#else
 //			for(i=0;i<Len;i++)
 //			{
@@ -85,8 +96,18 @@ void Transport_function()
         }
 	}
 }
+void Report_function()
+{
+	u8 temp[2];
+	if(0)
+	{
+		temp[0] = Read_IO_H();
+		temp[1] = Read_IO_L();
+		unpack(0x04,0x00,temp,sizeof(temp));
+	}
+}
 /*
- *作用是带出指针变量
+ *解析命令函数作用是带出指针变量
  */
 bool Analysis(u32 *add,u8 *cmd,u8 *Data,u32 *DataLen,u8 *Content,u32 ContentLen)
 {
@@ -102,17 +123,17 @@ bool Analysis(u32 *add,u8 *cmd,u8 *Data,u32 *DataLen,u8 *Content,u32 ContentLen)
 	
 	if( (HEAD != pPack->PackHead) || \
 		(SOFT_VER != pPack->SoftVer)|| \
-		(HARD_VER != pPack->HardType)|| \
+		(HARD_TYPE != pPack->HardType)|| \
 		(TAIL != *((u8 *)((u8 *)pPack + PACK_TAIL_REGION_OFFSET \
-					+  pPack->DataLength - DATALEN_FIX_LENGTH)))
-	  )
+					+  pPack->DataLength - DATALEN_FIX_LENGTH))))
 	{
 		return false;
 	}
 	
 	CRCValue = ChkCrcValueEx(&(pPack->SoftVer), (pPack->DataLength),0xFFFF);
-	pCRCValueRegion = (u16 *)((u8*)pPack + CRC_REGION_OFFSET
-    +(pPack->DataLength - DATALEN_FIX_LENGTH));
+	pCRCValueRegion = (u16 *)((u8*)pPack + CRC_REGION_OFFSET \
+								+(pPack->DataLength - DATALEN_FIX_LENGTH));
+	
 	if (*pCRCValueRegion != CRCValue)
 	{
 		return false;
@@ -144,17 +165,19 @@ bool unpack(u8 cmd,u32 targetadd,u8 *data,u32 datalen)
 	pPack->PackHead = HEAD;
 	pPack->DataLength = datalen + MAX_PROTOCOL_EX_LEN - 6;
 	pPack->SoftVer = SOFT_VER;
-	pPack->HardType = HARD_VER;
+	pPack->HardType = HARD_TYPE;
 	pPack->CmdCode = cmd;
-	pPack->SrcAddr = 0x12000000;//自身ID号
+	//pPack->SrcAddr = 0x12000000;//自身ID号
+	pPack->SrcAddr = 0x00000000;//自身ID号
 	pPack->DesAddr = targetadd;
-	pPack->SerialNO = 0;
-	pPack->TotalPackNum = 1;
-	pPack->CurrentPackNO = 1;
+	pPack->DesAddr = 0x00000000;//目标ID号
+	pPack->SerialNO = 0;//序列号
+	pPack->TotalPackNum = 1;//当前报数
+	pPack->CurrentPackNO = 1;//总报数
 	
-	memcpy(&(pPack->CmdData), data, datalen);
+	memcpy(&(pPack->CmdData), data, datalen);//拷贝数据内容到pPack结构体中
 	
-	CRCValue = ChkCrcPack(&(pPack->SoftVer), (pPack->DataLength),0xFFFF);
+	CRCValue = ChkCrcPack(&(pPack->SoftVer), (pPack->DataLength),0xFFFF);//计算crc
 	pCRCValueRegion = (u16 *)((u8 *)pPack + datalen + CRC_REGION_OFFSET); 
 	*pCRCValueRegion = CRCValue;
 	
